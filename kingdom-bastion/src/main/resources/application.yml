@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: bastion
+
+kingdom:
+  sentinel:
+    jwt:
+      public-key: classpath:keys/bastion-public.pem
+      private-key: classpath:keys/bastion-private.pem
+      key-id: bastion-key-1 
+  passport:
+    cookie:
+      name: KINGDOM_PASSPORT
+      same-site: Lax
+
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.FilteringWebHandler: TRACE
+    org.springframework.cloud.gateway.filter.NettyRoutingFilter: TRACE
+    org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter: TRACE
+      

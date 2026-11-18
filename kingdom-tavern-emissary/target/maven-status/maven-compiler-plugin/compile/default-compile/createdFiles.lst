@@ -1,0 +1,8 @@
+dev\ioza\kingdom\tavern\emissary\infrastructure\properties\TavernEmissaryProperties.class
+dev\ioza\kingdom\tavern\emissary\infrastructure\configuration\EmissaryAutoConfiguration.class
+dev\ioza\kingdom\tavern\emissary\domain\TavernManifestFactory.class
+dev\ioza\kingdom\tavern\emissary\domain\TavernRegistrationStatus.class
+dev\ioza\kingdom\tavern\emissary\infrastructure\registration\BastionRegistryHttpAdapter.class
+dev\ioza\kingdom\tavern\emissary\application\port\out\BastionRegistryPort.class
+dev\ioza\kingdom\tavern\emissary\application\EmissaryService.class
+dev\ioza\kingdom\tavern\emissary\infrastructure\heartbeat\TavernHeartbeat.class

@@ -1,0 +1,31 @@
+{
+  "groups": [
+    {
+      "name": "kingdom.tavern.lock",
+      "type": "dev.ioza.kingdom.tavern.lock.infrastructure.properties.TavernLockProperties",
+      "sourceType": "dev.ioza.kingdom.tavern.lock.infrastructure.properties.TavernLockProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "kingdom.tavern.lock.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "dev.ioza.kingdom.tavern.lock.infrastructure.properties.TavernLockProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "kingdom.tavern.lock.issuer",
+      "type": "java.net.URI",
+      "sourceType": "dev.ioza.kingdom.tavern.lock.infrastructure.properties.TavernLockProperties"
+    },
+    {
+      "name": "kingdom.tavern.lock.royal-archives-uri",
+      "type": "java.net.URI",
+      "sourceType": "dev.ioza.kingdom.tavern.lock.infrastructure.properties.TavernLockProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

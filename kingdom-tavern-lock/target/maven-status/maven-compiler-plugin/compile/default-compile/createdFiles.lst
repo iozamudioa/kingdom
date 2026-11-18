@@ -1,0 +1,5 @@
+dev\ioza\kingdom\tavern\lock\infrastructure\configuration\TavernLockDisabledAutoConfiguration.class
+dev\ioza\kingdom\tavern\lock\infrastructure\security\RoyalDecreeAuthoritiesConverter.class
+dev\ioza\kingdom\tavern\lock\infrastructure\security\ParchmentAuthenticationConverter.class
+dev\ioza\kingdom\tavern\lock\infrastructure\configuration\TavernLockAutoConfiguration.class
+dev\ioza\kingdom\tavern\lock\infrastructure\properties\TavernLockProperties.class

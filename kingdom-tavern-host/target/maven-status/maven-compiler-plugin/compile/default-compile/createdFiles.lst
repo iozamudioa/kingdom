@@ -1,0 +1,11 @@
+dev\ioza\kingdom\tavern\host\configuration\RequestLogFilter.class
+dev\ioza\kingdom\tavern\host\web\ReverseProxyController.class
+dev\ioza\kingdom\tavern\host\configuration\WebConfiguration.class
+dev\ioza\kingdom\tavern\host\configuration\ProxyConfiguration.class
+dev\ioza\kingdom\tavern\host\resource\DocumentRootException.class
+dev\ioza\kingdom\tavern\host\resource\DocumentRootResolver.class
+dev\ioza\kingdom\tavern\host\web\SpaFallbackController.class
+dev\ioza\kingdom\tavern\host\configuration\Mode.class
+dev\ioza\kingdom\tavern\host\configuration\TavernHostProperties.class
+dev\ioza\kingdom\tavern\host\web\HealthController.class
+dev\ioza\kingdom\tavern\host\TavernHostApplication.class

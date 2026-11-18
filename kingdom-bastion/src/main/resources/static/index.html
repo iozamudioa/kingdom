@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17130d" />
+
+    <title>Kingdom Security | Bastion</title>
+
+    <style>
+        :root {
+            --background: #17130d;
+            --panel: #211b12;
+            --panel-border: #8f7442;
+            --gold: #c7a45d;
+            --gold-light: #e4ca8d;
+            --text: #eee3c9;
+            --muted: #9f9277;
+            --input: #15110c;
+            --danger: #bd6b5d;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top, rgba(199, 164, 93, 0.08), transparent 38%),
+                linear-gradient(rgba(10, 8, 5, 0.74), rgba(10, 8, 5, 0.9)),
+                repeating-linear-gradient(90deg,
+                    #17130d 0,
+                    #17130d 3px,
+                    #1a160f 3px,
+                    #1a160f 6px);
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        .login {
+            width: min(100%, 390px);
+            padding: 42px 38px 36px;
+            text-align: center;
+            background: linear-gradient(145deg, rgba(39, 32, 21, 0.98), rgba(26, 21, 14, 0.98));
+            border: 1px solid var(--panel-border);
+            box-shadow:
+                0 28px 70px rgba(0, 0, 0, 0.55),
+                inset 0 0 0 4px rgba(199, 164, 93, 0.04);
+            position: relative;
+        }
+
+        .login::before,
+        .login::after {
+            content: "◆";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--gold);
+            font-size: 11px;
+            background: var(--panel);
+            padding: 0 12px;
+        }
+
+        .login::before {
+            top: -7px;
+        }
+
+        .login::after {
+            bottom: -7px;
+        }
+
+        .crest {
+            width: 74px;
+            height: 84px;
+            margin: 0 auto 20px;
+            display: grid;
+            place-items: center;
+            color: var(--gold-light);
+            border: 2px solid var(--gold);
+            border-radius: 50% 50% 44% 44% / 34% 34% 66% 66%;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: -3px;
+            box-shadow:
+                inset 0 0 20px rgba(199, 164, 93, 0.1),
+                0 0 22px rgba(199, 164, 93, 0.08);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--gold-light);
+            font-size: 28px;
+            font-weight: normal;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            margin: 8px 0 30px;
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+
+        form {
+            display: grid;
+            gap: 17px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--gold-light);
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            height: 48px;
+            padding: 0 15px;
+            color: var(--text);
+            background: var(--input);
+            border: 1px solid #594a31;
+            border-radius: 0;
+            outline: none;
+            font: inherit;
+            transition: border-color 160ms ease, box-shadow 160ms ease;
+        }
+
+        input::placeholder {
+            color: #6f6552;
+        }
+
+        input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(199, 164, 93, 0.1);
+        }
+
+        button {
+            height: 50px;
+            margin-top: 6px;
+            color: #17130d;
+            background: linear-gradient(#d5b66f, #a98545);
+            border: 1px solid #e1c887;
+            cursor: pointer;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            transition: transform 150ms ease, filter 150ms ease;
+        }
+
+        button:hover {
+            filter: brightness(1.08);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .message {
+            min-height: 18px;
+            margin: 16px 0 0;
+            color: var(--danger);
+            font-size: 13px;
+        }
+
+        .footer {
+            margin-top: 22px;
+            color: #746951;
+            font-size: 11px;
+            letter-spacing: 0.09em;
+        }
+
+        @media (max-width: 460px) {
+            .login {
+                padding: 36px 24px 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="login">
+        <div class="crest" aria-label="Escudo de Kingdom">K</div>
+
+        <h1>Kingdom</h1>
+        <p class="subtitle">Bastion Access</p>
+
+        <form id="loginForm">
+            <div>
+                <label for="username">Vasallo</label>
+                <input id="username" name="username" type="text" autocomplete="username" placeholder="Nombre de usuario"
+                    required />
+            </div>
+
+            <div>
+                <label for="password">Palabra de paso</label>
+                <input id="password" name="password" type="password" autocomplete="current-password"
+                    placeholder="••••••••" required />
+            </div>
+
+            <button type="submit">Entrar al reino</button>
+        </form>
+
+        <p id="message" class="message" role="alert"></p>
+
+        <div class="footer">Protegido por Bastion</div>
+    </main>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const message = document.getElementById("message");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            /*
+             * Flujo recomendado para Kingdom:
+             * window.location.href = "/audience";
+             *
+             * El formulario visual puede conservarse o eliminarse cuando
+             * Bastion delegue completamente el login hacia Realm/Keycloak.
+             */
+
+            message.textContent = "Solicitando audiencia en el Bastión…";
+
+            setTimeout(() => {
+                window.location.href = "/audience";
+            }, 450);
+        });
+    </script>
+</body>
+
+</html>

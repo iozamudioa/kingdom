@@ -1,0 +1,8 @@
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\application\EmissaryService.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\application\port\out\BastionRegistryPort.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\domain\TavernManifestFactory.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\domain\TavernRegistrationStatus.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\infrastructure\configuration\EmissaryAutoConfiguration.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\infrastructure\heartbeat\TavernHeartbeat.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\infrastructure\properties\TavernEmissaryProperties.java
+C:\code\kingdom-security\kingdom-tavern-emissary\src\main\java\dev\ioza\kingdom\tavern\emissary\infrastructure\registration\BastionRegistryHttpAdapter.java
