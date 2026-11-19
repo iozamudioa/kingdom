@@ -1,5 +1,5 @@
 steps:
   - name: build
-    image: maven:3.9.9-eclipse-temurin-21
+    image: registry.ioza.dev/ci/maven:21
     commands:
       - mvn -B clean install -DskipTests
