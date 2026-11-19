@@ -1,6 +1,9 @@
 
 steps:
-  - name: build
+  - name: publish
     image: registry.ioza.dev/ci/maven:21
     commands:
-      - mvn -B clean install -DskipTests
+      - mvn -B clean deploy -DskipTests -DaltDeploymentRepository=kingdom-snapshots::https://nexus.ioza.dev/repository/kingdom-snapshots/
+    when:
+      - event: push
+        branch: main
