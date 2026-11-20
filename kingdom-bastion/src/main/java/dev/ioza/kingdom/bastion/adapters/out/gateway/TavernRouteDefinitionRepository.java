@@ -1,7 +1,6 @@
 package dev.ioza.kingdom.bastion.adapters.out.gateway;
 
 import java.util.List;
-import org.springframework.cloud.gateway.filter.FilterDefinition;
 import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionRepository;
@@ -77,7 +76,6 @@ public class TavernRouteDefinitionRepository implements RouteDefinitionRepositor
         definition.setPredicates(
                 List.of(predicate(HOST, "bastion.ioza.dev"), predicate(PATH, path(tavern))));
 
-        definition.getFilters().add(stripPrefixFilter());
 
         log.info("Registered CONTEXT route '{}' [{} {}] -> {}", definition.getId(),
                 "bastion.ioza.dev", path(tavern), definition.getUri());
@@ -93,16 +91,6 @@ public class TavernRouteDefinitionRepository implements RouteDefinitionRepositor
         definition.addArg("pattern", value);
 
         return definition;
-    }
-
-    private FilterDefinition stripPrefixFilter() {
-
-        FilterDefinition filter = new FilterDefinition();
-
-        filter.setName("StripPrefix");
-        filter.addArg("parts", "1");
-
-        return filter;
     }
 
     private String domain(TavernManifest tavern) {
