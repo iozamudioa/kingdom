@@ -35,7 +35,7 @@ steps:
         from_secret: nexus_password
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/iozamudioa/docker/kingdom/bastion:/deployment
+      - /home/iozamudioa/docker/kingdom/bastion:/home/iozamudioa/docker/kingdom/bastion
     commands:
       - echo "$NEXUS_PASSWORD" | docker login registry.ioza.dev -u "$NEXUS_USERNAME" --password-stdin
       - cd /deployment
