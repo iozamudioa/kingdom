@@ -12,7 +12,7 @@ public class GatewayConfiguration {
     @Bean
     RouteLocator kingdomRoute(RouteLocatorBuilder builder) {
 
-        return builder.routes().route("kingdom", route -> route.path("/**").uri("no://op")).build();
+        return builder.routes().build();
     }
 
 }

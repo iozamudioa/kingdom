@@ -48,28 +48,23 @@ public class InMemoryTavernRegistry implements TavernRegistryPort {
 
         String normalizedHost = normalizeHost(host);
 
-        Optional<TavernManifest> byPath =
-                taverns.values().stream().filter(tavern -> matchesPath(tavern, path)).findFirst();
+        // Dedicated hosts take precedence; context paths belong only to Bastion.
+        Optional<TavernManifest> byHost = taverns.values().stream()
+                .filter(tavern -> matchesHost(tavern, normalizedHost)).findFirst();
 
-        if (byPath.isPresent()) {
-
-            TavernManifest tavern = byPath.get();
-            String forwardedPath = removeContext(path, tavern);
-
-            log.info("Resolved by PATH [{}] -> tavern [{}], forwardedPath [{}]", path,
-                    tavern.tavernName(), forwardedPath);
-
-            return Optional.of(new TavernResolution(tavern, forwardedPath));
+        if (byHost.isPresent()) {
+            return Optional.of(new TavernResolution(byHost.get(), path));
         }
 
-        return taverns.values().stream().filter(tavern -> matchesHost(tavern, normalizedHost))
-                .findFirst().map(tavern -> {
+        if (!"bastion.ioza.dev".equalsIgnoreCase(normalizedHost)) {
+            return Optional.empty();
+        }
 
-                    log.info("Resolved by HOST [{}] -> tavern [{}], forwardedPath [{}]",
-                            normalizedHost, tavern.tavernName(), path);
-
-                    return new TavernResolution(tavern, path);
-                });
+        return taverns.values().stream().filter(tavern -> matchesPath(tavern, path))
+                .sorted((left, right) -> Integer.compare(contextOf(right).length(),
+                        contextOf(left).length()))
+                .findFirst().map(tavern ->
+                        new TavernResolution(tavern, removeContext(path, tavern)));
     }
 
     private String removeContext(String path, TavernManifest tavern) {

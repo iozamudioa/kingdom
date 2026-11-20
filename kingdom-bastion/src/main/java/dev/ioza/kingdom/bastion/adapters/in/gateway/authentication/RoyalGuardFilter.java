@@ -76,7 +76,7 @@ public class RoyalGuardFilter implements WebFilter {
             return redirectToTrailingSlash(exchange, chain);
         }
 
-        if (isStaticResource(exchange) || isPublicPath(exchange, tavern)) {
+        if (isPublicPath(exchange, tavern)) {
             return chain.filter(exchange);
         }
 
