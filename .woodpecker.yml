@@ -38,7 +38,7 @@ steps:
       - /home/iozamudioa/docker/kingdom/bastion:/home/iozamudioa/docker/kingdom/bastion
     commands:
       - echo "$NEXUS_PASSWORD" | docker login registry.ioza.dev -u "$NEXUS_USERNAME" --password-stdin
-      - cd /deployment
+      - cd /home/iozamudioa/docker/kingdom/bastion
       - docker compose -p bastion pull bastion
       - docker compose -p bastion up -d --force-recreate --no-deps bastion
       - docker compose -p bastion logs --tail=30 bastion
