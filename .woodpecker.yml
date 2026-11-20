@@ -1,9 +1,30 @@
 
 steps:
-  - name: publish
+  - name: publish-maven
     image: registry.ioza.dev/ci/maven:21
+    environment:
+      NEXUS_USERNAME:
+        from_secret: nexus_username
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
     commands:
       - mvn -B clean deploy -DskipTests -DaltDeploymentRepository=kingdom-snapshots::https://nexus.ioza.dev/repository/kingdom-snapshots/
-    when:
-      - event: push
-        branch: main
+
+  - name: publish-bastion
+    image: docker:cli
+    environment:
+      NEXUS_USERNAME:
+        from_secret: nexus_username
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - cp kingdom-bastion/target/kingdom-bastion-0.0.1-SNAPSHOT.jar kingdom-bastion/app.jar
+      - echo "$NEXUS_PASSWORD" | docker login registry.ioza.dev -u "$NEXUS_USERNAME" --password-stdin
+      - docker build -t registry.ioza.dev/kingdom/bastion:0.0.1-SNAPSHOT kingdom-bastion
+      - docker push registry.ioza.dev/kingdom/bastion:0.0.1-SNAPSHOT
+
+when:
+  - event: push
+    branch: main
