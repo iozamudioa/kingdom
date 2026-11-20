@@ -5,8 +5,8 @@ spring:
 kingdom:
   sentinel:
     jwt:
-      public-key: classpath:keys/bastion-public.pem
-      private-key: classpath:keys/bastion-private.pem
+      public-key: file:/app/keys/bastion-public.pem
+      private-key: file:/app/keys/bastion-private.pem
       key-id: bastion-key-1 
   passport:
     cookie:
