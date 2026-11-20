@@ -1,5 +1,4 @@
-
-steps: 
+steps:
   - name: publish-maven
     image: registry.ioza.dev/ci/maven:21
     environment:
@@ -26,6 +25,23 @@ steps:
       - echo "$NEXUS_PASSWORD" | docker login registry.ioza.dev -u "$NEXUS_USERNAME" --password-stdin
       - docker build -t registry.ioza.dev/kingdom/bastion:0.0.1-SNAPSHOT kingdom-bastion
       - docker push registry.ioza.dev/kingdom/bastion:0.0.1-SNAPSHOT
+
+  - name: deploy-bastion
+    image: docker:cli
+    environment:
+      NEXUS_USERNAME:
+        from_secret: nexus_username
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/iozamudioa/docker/kingdom/bastion:/deployment
+    commands:
+      - echo "$NEXUS_PASSWORD" | docker login registry.ioza.dev -u "$NEXUS_USERNAME" --password-stdin
+      - cd /deployment
+      - docker compose pull bastion
+      - docker compose up -d --force-recreate --no-deps bastion
+      - docker compose logs --tail=30 bastion
 
 when:
   - event: push
