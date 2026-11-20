@@ -2,7 +2,6 @@
 steps: 
   - name: publish-maven
     image: registry.ioza.dev/ci/maven:21
-    pull: true
     environment:
       NEXUS_USERNAME:
         from_secret: nexus_username
