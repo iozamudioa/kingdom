@@ -2,13 +2,10 @@
 
 Taverns can inject `dev.ioza.kingdom.contracts.identity.KingdomIdentityProvider` when Tavern Lock is enabled. The provider reads the authenticated JWT only, never a raw request header. Use `subject()` or `require()`, and check `isKnight()` before granting user-only access. The provider is for servlet-based Taverns and the active request thread.
 
-The experimental password-based Knight Seal is disabled by default. Configure a dedicated confidential Keycloak client with Direct Access Grants enabled (not the Herald client), and supply:
+The password-based Knight Seal endpoint is registered by default. Authentication fails closed when its dedicated client is not configured. Configure a dedicated confidential Keycloak client with Direct Access Grants enabled (not the Herald client), and supply:
 
 ```yaml
 kingdom:
-  seal:
-    knight:
-      enabled: true
   realm:
     keycloak:
       knight-seal:
