@@ -32,12 +32,6 @@ public class EmissaryAutoConfiguration {
 
     @Bean
     BastionRegistryPort bastionRegistryPort(TavernEmissaryProperties properties) {
-        System.out.println("==============");
-        System.out.println("enabled    = " + properties.enabled());
-        System.out.println("url        = " + properties.bastionUrl());
-        System.out.println("username   = [" + properties.username() + "]");
-        System.out.println("password   = [" + properties.password() + "]");
-        System.out.println("==============");
         return new BastionRegistryHttpAdapter(properties.bastionUrl(), properties.username(),
                 properties.password());
     }
