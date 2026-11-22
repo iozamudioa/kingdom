@@ -1,6 +1,7 @@
 package dev.ioza.kingdom.bastion.adapters.out.registry;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,9 +49,11 @@ public class InMemoryTavernRegistry implements TavernRegistryPort {
 
         String normalizedHost = normalizeHost(host);
 
-        // Dedicated hosts take precedence; context paths belong only to Bastion.
+        // Match the most specific path when multiple taverns share a domain.
         Optional<TavernManifest> byHost = taverns.values().stream()
-                .filter(tavern -> matchesHost(tavern, normalizedHost)).findFirst();
+                .filter(tavern -> matchesHost(tavern, normalizedHost) && matchesDomainPath(tavern, path))
+                .sorted(Comparator.comparingInt((TavernManifest t) -> contextOf(t).length()).reversed())
+                .findFirst();
 
         if (byHost.isPresent()) {
             return Optional.of(new TavernResolution(byHost.get(), path));
@@ -65,6 +68,11 @@ public class InMemoryTavernRegistry implements TavernRegistryPort {
                         contextOf(left).length()))
                 .findFirst().map(tavern ->
                         new TavernResolution(tavern, removeContext(path, tavern)));
+    }
+
+    private boolean matchesDomainPath(TavernManifest tavern, String path) {
+        String context = contextOf(tavern);
+        return context.isBlank() || path.equals(context) || path.startsWith(context + "/");
     }
 
     private String removeContext(String path, TavernManifest tavern) {
