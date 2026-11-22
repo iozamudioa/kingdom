@@ -6,7 +6,6 @@ kingdom:
     host:
       mode: ${KINGDOM_TAVERN_HOST_MODE:STATIC}
       source: /app/tavern
-      api-proxy-url: ${KINGDOM_TAVERN_API_PROXY_URL:}
     emissary:
       enabled: true
       bastion-url: ${KINGDOM_BASTION_URL:}
