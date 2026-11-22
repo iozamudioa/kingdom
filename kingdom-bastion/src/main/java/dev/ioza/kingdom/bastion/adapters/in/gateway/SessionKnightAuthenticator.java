@@ -43,15 +43,6 @@ public class SessionKnightAuthenticator implements TavernAuthenticator {
 
                                 .flatMap(knightSession -> {
 
-                                        boolean isUi = tavern.capabilities() != null
-                                                        && tavern.capabilities().contains("ui");
-
-                                        if (isUi) {
-                                                return Mono.just(new AuthenticationResult(
-                                                                AuthenticationStatus.AUTHENTICATED,
-                                                                exchange));
-                                        }
-
                                         Parchment parchment = issueKnightParchment
                                                         .issue(knightSession.knight());
 
@@ -71,8 +62,7 @@ public class SessionKnightAuthenticator implements TavernAuthenticator {
                                 })
 
                                 .switchIfEmpty(Mono.fromSupplier(() -> {
-                                        log.warn("Knight session not found for passport {}",
-                                                        passport.getValue());
+                                        log.warn("Knight session not found");
 
                                         return new AuthenticationResult(
                                                         AuthenticationStatus.NOT_AUTHENTICATED,
