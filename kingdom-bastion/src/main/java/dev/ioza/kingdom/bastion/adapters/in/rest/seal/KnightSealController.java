@@ -1,5 +1,4 @@
 package dev.ioza.kingdom.bastion.adapters.in.rest.seal;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import dev.ioza.kingdom.bastion.application.seal.KnightSealService;
@@ -10,7 +9,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix="kingdom.seal.knight", name="enabled", havingValue="true")
 public class KnightSealController {
     private final KnightSealService service;
     @PostMapping(path="/seal/knight", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
