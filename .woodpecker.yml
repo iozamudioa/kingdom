@@ -26,6 +26,20 @@ steps:
       - docker build -t registry.ioza.dev/kingdom/bastion:0.0.1-SNAPSHOT kingdom-bastion
       - docker push registry.ioza.dev/kingdom/bastion:0.0.1-SNAPSHOT
 
+  - name: publish-tavern-host
+    image: docker:cli
+    environment:
+      NEXUS_USERNAME:
+        from_secret: nexus_username
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - echo "$NEXUS_PASSWORD" | docker login registry.ioza.dev -u "$NEXUS_USERNAME" --password-stdin
+      - docker build -f kingdom-tavern-host/Dockerfile -t registry.ioza.dev/kingdom/tavern-host:0.0.1-SNAPSHOT .
+      - docker push registry.ioza.dev/kingdom/tavern-host:0.0.1-SNAPSHOT
+
   - name: deploy-bastion
     image: docker:cli
     environment:
