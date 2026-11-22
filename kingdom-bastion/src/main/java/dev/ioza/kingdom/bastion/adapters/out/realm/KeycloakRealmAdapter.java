@@ -89,6 +89,45 @@ public class KeycloakRealmAdapter implements RealmPort {
                 return authenticate(exchangeAuthorizationCode(authorizationCode));
         }
 
+        @Override
+        public Mono<Knight> authenticateKnight(String username, String password) {
+                var client = properties.knightSeal();
+                if (client == null || client.clientId() == null || client.clientId().isBlank()
+                        || client.clientSecret() == null || client.clientSecret().isBlank()) {
+                        return Mono.error(new RealmUnavailableException("Knight seal client is not configured"));
+                }
+                MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+                form.add("grant_type", "password");
+                form.add("scope", "openid");
+                form.add("client_id", client.clientId());
+                form.add("client_secret", client.clientSecret());
+                form.add("username", username);
+                form.add("password", password);
+                return webClient.post().uri(properties.tokenUri())
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED).bodyValue(form)
+                        .retrieve()
+                        .onStatus(status -> status.value() == 400 || status.value() == 401,
+                                response -> Mono.error(new InvalidRealmCredentialsException()))
+                        .onStatus(HttpStatusCode::isError,
+                                response -> Mono.error(new RealmUnavailableException("Knight authentication unavailable")))
+                        .bodyToMono(KeycloakTokenResponse.class)
+                        .flatMap(response -> {
+                                if (response.idToken() == null || response.idToken().isBlank()) {
+                                        return Mono.error(new RealmUnavailableException("Missing identity token"));
+                                }
+                                return realmJwtDecoder.decode(response.idToken());
+                        })
+                        .filter(jwt -> jwt.getAudience() != null && jwt.getAudience().contains(client.clientId())
+                                && jwt.getClaimAsString("preferred_username") != null
+                                && !jwt.getClaimAsString("preferred_username").isBlank())
+                        .switchIfEmpty(Mono.error(new RealmUnavailableException("Invalid realm identity")))
+                        .map(this::toKnight)
+                        .onErrorMap(org.springframework.security.oauth2.jwt.JwtException.class,
+                                ex -> new RealmUnavailableException("Invalid realm identity"))
+                        .onErrorMap(WebClientRequestException.class,
+                                ex -> new RealmUnavailableException("Could not communicate with Keycloak"));
+        }
+
         private RealmKnightAuthentication toRealmKnightAuthentication(
                         KeycloakTokenResponse response, Jwt idToken) {
 

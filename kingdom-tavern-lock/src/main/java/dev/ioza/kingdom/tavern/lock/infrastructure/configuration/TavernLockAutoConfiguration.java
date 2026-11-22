@@ -1,5 +1,7 @@
 package dev.ioza.kingdom.tavern.lock.infrastructure.configuration;
 
+import dev.ioza.kingdom.contracts.identity.KingdomIdentityProvider;
+import dev.ioza.kingdom.tavern.lock.infrastructure.security.SpringSecurityIdentityProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -21,6 +23,12 @@ import dev.ioza.kingdom.tavern.lock.infrastructure.security.ParchmentAuthenticat
                 matchIfMissing = true)
 
 public class TavernLockAutoConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean(KingdomIdentityProvider.class)
+        KingdomIdentityProvider kingdomIdentityProvider() {
+                return new SpringSecurityIdentityProvider();
+        }
 
         private static final Logger log =
                         LoggerFactory.getLogger(TavernLockAutoConfiguration.class);
