@@ -4,47 +4,37 @@ import dev.ioza.kingdom.bastion.domain.model.identity.KnightSession;
 import dev.ioza.kingdom.bastion.domain.ports.out.KingdomPassportPort;
 import dev.ioza.kingdom.bastion.domain.ports.out.KnightSessionPort;
 import dev.ioza.kingdom.bastion.domain.ports.out.RealmPort;
+import dev.ioza.kingdom.bastion.domain.ports.out.TavernRegistryPort;
+import dev.ioza.kingdom.contracts.TavernManifest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Browser-initiated Kingdom-wide logout. A credentialed POST from the trusted
- * BANK origin revokes the session; a separate GET serves a safe completion page.
+ * Shared logout endpoint for registered Kingdom UI taverns. Each tavern decides
+ * its own post-logout returnTo URL and starts a fresh Audience flow afterwards.
  */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class AudienceDestroyController {
 
-    private static final String BANK_ORIGIN = "https://bank.ioza.dev";
-    private static final String SIGNED_OUT_PAGE = """
-            <!doctype html><html lang="es"><head><meta charset="utf-8">
-            <meta name="viewport" content="width=device-width,initial-scale=1">
-            <title>Sesión cerrada · Kingdom</title></head>
-            <body style="font:16px system-ui;margin:12vh auto;padding:24px;max-width:500px">
-            <h1>Sesión cerrada</h1><p>Tu sesión de Kingdom se ha cerrado.</p>
-            <a href="https://bastion.ioza.dev/audience?returnTo=https%3A%2F%2Fbank.ioza.dev%2Fdashboard">Iniciar sesión en Kingdom</a>
-            </body></html>
-            """;
-
     private final KnightSessionPort knightSessionPort;
     private final KingdomPassportPort kingdomPassportPort;
     private final RealmPort realmPort;
+    private final TavernRegistryPort tavernRegistryPort;
 
-    @PostMapping(value = "/audience/destroy", produces = MediaType.TEXT_HTML_VALUE)
-    public Mono<ResponseEntity<String>> destroy(ServerWebExchange exchange) {
+    @PostMapping("/audience/destroy")
+    public Mono<ResponseEntity<Void>> destroy(ServerWebExchange exchange) {
         String origin = exchange.getRequest().getHeaders().getOrigin();
-        // Only the trusted frontend can initiate a credentialed logout.
-        if (!BANK_ORIGIN.equals(origin)) {
+        if (!isRegisteredUiOrigin(origin)) {
             return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
         }
 
@@ -59,23 +49,40 @@ public class AudienceDestroyController {
                     log.warn("Kingdom logout encountered an error; clearing the browser passport", error);
                     return Mono.empty();
                 })
-                .then(Mono.fromSupplier(() -> ResponseEntity.ok()
-                        .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, BANK_ORIGIN)
+                .then(Mono.fromSupplier(() -> ResponseEntity.noContent()
+                        .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
                         .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
                         .header(HttpHeaders.VARY, HttpHeaders.ORIGIN)
                         .header(HttpHeaders.CACHE_CONTROL, "no-store, no-cache, max-age=0")
                         .header(HttpHeaders.PRAGMA, "no-cache")
                         .header(HttpHeaders.SET_COOKIE, kingdomPassportPort.destroy().toString())
-                        .contentType(MediaType.TEXT_HTML)
-                        .body(SIGNED_OUT_PAGE)));
+                        .<Void>build()));
     }
 
-    @GetMapping(value = "/audience/signed-out", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<String> signedOut() {
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CACHE_CONTROL, "no-store, no-cache, max-age=0")
-                .contentType(MediaType.TEXT_HTML)
-                .body(SIGNED_OUT_PAGE);
+    private boolean isRegisteredUiOrigin(String origin) {
+        if (origin == null) {
+            return false;
+        }
+        try {
+            URI uri = URI.create(origin);
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null
+                    || uri.getPort() != -1 || uri.getRawUserInfo() != null
+                    || uri.getRawPath() != null && !uri.getRawPath().isEmpty()
+                    || uri.getRawQuery() != null || uri.getRawFragment() != null) {
+                return false;
+            }
+            return tavernRegistryPort.findAll().stream()
+                    .filter(tavern -> tavern.capabilities().contains("ui"))
+                    .anyMatch(tavern -> matchesHost(tavern, uri.getHost()));
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
+    }
+
+    private boolean matchesHost(TavernManifest tavern, String host) {
+        return tavern.routePredicates().stream()
+                .anyMatch(predicate -> "Host".equalsIgnoreCase(predicate.name())
+                        && host.equalsIgnoreCase(predicate.value()));
     }
 
     private Mono<Void> invalidateSession(KnightSession session) {
