@@ -9,8 +9,7 @@ public record KeycloakRealmProperties(
 
         String realm,
 
-        ClientProperties herald,
-        ClientProperties knightSeal) {
+        ClientProperties herald) {
 
     public KeycloakRealmProperties {
 
