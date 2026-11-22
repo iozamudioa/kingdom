@@ -65,6 +65,7 @@ public class ApiProxyController {
             }
         }
         // Java HttpClient controls the Host header; Bastion must see the public domain.
+        outgoing.header("Host", request.getServerName());
         outgoing.header("X-Forwarded-Host", request.getServerName());
         outgoing.header("X-Forwarded-Proto", request.getHeader("X-Forwarded-Proto") == null
                 ? request.getScheme() : request.getHeader("X-Forwarded-Proto"));
