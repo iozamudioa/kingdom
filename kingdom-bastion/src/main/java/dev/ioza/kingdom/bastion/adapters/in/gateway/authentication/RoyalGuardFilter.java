@@ -68,7 +68,7 @@ public class RoyalGuardFilter implements WebFilter {
             responseHeaders.add(HttpHeaders.VARY, HttpHeaders.ORIGIN);
             if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS
                     && exchange.getRequest().getHeaders()
-                            .containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)) {
+                            .getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null) {
                 String requestedMethod = exchange.getRequest().getHeaders()
                         .getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
                 if (!List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
