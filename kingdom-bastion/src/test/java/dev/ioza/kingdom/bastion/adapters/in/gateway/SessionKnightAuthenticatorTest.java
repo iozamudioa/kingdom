@@ -18,6 +18,7 @@ import dev.ioza.kingdom.bastion.domain.model.identity.KnightSession;
 import dev.ioza.kingdom.bastion.domain.model.parchment.Parchment;
 import dev.ioza.kingdom.bastion.domain.ports.in.IssueParchmentUseCase;
 import dev.ioza.kingdom.bastion.domain.ports.out.KnightSessionPort;
+import dev.ioza.kingdom.bastion.domain.ports.out.RealmPort;
 import dev.ioza.kingdom.contracts.TavernManifest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -25,8 +26,9 @@ import reactor.test.StepVerifier;
 class SessionKnightAuthenticatorTest {
     private final KnightSessionPort sessions = mock(KnightSessionPort.class);
     private final IssueParchmentUseCase issuer = mock(IssueParchmentUseCase.class);
+    private final RealmPort realmPort = mock(RealmPort.class);
     private final SessionKnightAuthenticator authenticator =
-            new SessionKnightAuthenticator(sessions, issuer);
+            new SessionKnightAuthenticator(sessions, realmPort, issuer);
 
     @Test
     void uiProxyReceivesParchment() {
