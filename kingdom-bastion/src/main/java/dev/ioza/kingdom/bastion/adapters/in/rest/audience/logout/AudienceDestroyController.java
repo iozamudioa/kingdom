@@ -62,7 +62,7 @@ public class AudienceDestroyController {
                 .then(Mono.fromSupplier(() -> ResponseEntity.ok()
                         .header(HttpHeaders.CACHE_CONTROL, "no-store, no-cache, max-age=0")
                         .header(HttpHeaders.PRAGMA, "no-cache")
-                        .cookie(kingdomPassportPort.destroy())
+                        .header(HttpHeaders.SET_COOKIE, kingdomPassportPort.destroy().toString())
                         .contentType(MediaType.TEXT_HTML)
                         .body(SIGNED_OUT_PAGE)));
     }
