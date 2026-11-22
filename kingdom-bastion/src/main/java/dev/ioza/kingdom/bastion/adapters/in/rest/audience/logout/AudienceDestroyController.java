@@ -32,7 +32,7 @@ public class AudienceDestroyController {
             <title>Sesión cerrada · Kingdom</title></head>
             <body style="font:16px system-ui;margin:12vh auto;padding:24px;max-width:500px">
             <h1>Sesión cerrada</h1><p>Tu sesión de Kingdom se ha cerrado.</p>
-            <a href="https://bank.ioza.dev/dashboard">Iniciar sesión de nuevo en BANK</a>
+            <a href="https://bastion.ioza.dev/audience?returnTo=https%3A%2F%2Fbank.ioza.dev%2Fdashboard">Iniciar sesión en Kingdom</a>
             </body></html>
             """;
 
