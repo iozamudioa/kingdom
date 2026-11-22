@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.PathContainer;
@@ -53,6 +54,38 @@ public class RoyalGuardFilter implements WebFilter {
         String host = exchange.getRequest().getHeaders().getFirst(HttpHeaders.HOST);
 
         String path = exchange.getRequest().getPath().value();
+
+        // CORS belongs at the gateway: even a 401 must be readable by the SPA.
+        // Only BANK's trusted frontend may make credentialed cross-origin API calls.
+        String origin = exchange.getRequest().getHeaders().getOrigin();
+        boolean bankApi = "bank-api.ioza.dev".equalsIgnoreCase(normalizeHost(host == null ? "" : host))
+                && path.startsWith("/api/v1/");
+        boolean trustedOrigin = "https://bank.ioza.dev".equals(origin);
+        if (bankApi && trustedOrigin) {
+            HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
+            responseHeaders.setAccessControlAllowOrigin(origin);
+            responseHeaders.setAccessControlAllowCredentials(true);
+            responseHeaders.add(HttpHeaders.VARY, HttpHeaders.ORIGIN);
+            if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS
+                    && exchange.getRequest().getHeaders()
+                            .containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)) {
+                String requestedMethod = exchange.getRequest().getHeaders()
+                        .getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+                if (!List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                        .contains(requestedMethod)) {
+                    exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                    return exchange.getResponse().setComplete();
+                }
+                responseHeaders.setAccessControlAllowMethods(
+                        List.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT,
+                                HttpMethod.PATCH, HttpMethod.DELETE, HttpMethod.OPTIONS));
+                responseHeaders.setAccessControlAllowHeaders(
+                        List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+                responseHeaders.setAccessControlMaxAge(3600);
+                exchange.getResponse().setStatusCode(HttpStatus.NO_CONTENT);
+                return exchange.getResponse().setComplete();
+            }
+        }
 
         Optional<TavernResolution> resolution = tavernRegistry.resolve(host, path);
 
