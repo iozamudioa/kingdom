@@ -25,4 +25,4 @@ USER kingdom
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djdk.httpclient.allowRestrictedHeaders=host", "-jar", "app.jar"]
