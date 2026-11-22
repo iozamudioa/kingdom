@@ -7,6 +7,7 @@ import org.springframework.web.server.ServerWebExchange;
 import dev.ioza.kingdom.bastion.domain.model.parchment.Parchment;
 import dev.ioza.kingdom.bastion.domain.ports.in.IssueParchmentUseCase;
 import dev.ioza.kingdom.bastion.domain.ports.out.KnightSessionPort;
+import dev.ioza.kingdom.bastion.domain.ports.out.RealmPort;
 import dev.ioza.kingdom.contracts.TavernAccess;
 import dev.ioza.kingdom.contracts.TavernManifest;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 public class SessionKnightAuthenticator implements TavernAuthenticator {
 
         private final KnightSessionPort sessions;
+        private final RealmPort realmPort;
         private final IssueParchmentUseCase issueKnightParchment;
 
         @Override
@@ -42,6 +44,19 @@ public class SessionKnightAuthenticator implements TavernAuthenticator {
                 return sessions.find(passport.getValue())
 
                                 .flatMap(knightSession -> {
+                                        if (knightSession.isRealm() && knightSession.isAccessTokenExpired()) {
+                                                log.info("Realm access token expired; destroying Kingdom session");
+                                                Mono<Void> realmLogout = knightSession.refreshToken() == null
+                                                                ? Mono.empty()
+                                                                : realmPort.logout(knightSession.refreshToken())
+                                                                                .onErrorResume(error -> {
+                                                                                        log.warn("Keycloak expiry logout failed", error);
+                                                                                        return Mono.empty();
+                                                                                });
+                                                return realmLogout.then(sessions.destroy(knightSession.passport()))
+                                                                .thenReturn(new AuthenticationResult(
+                                                                                AuthenticationStatus.NOT_AUTHENTICATED, exchange));
+                                        }
 
                                         Parchment parchment = issueKnightParchment
                                                         .issue(knightSession.knight());
