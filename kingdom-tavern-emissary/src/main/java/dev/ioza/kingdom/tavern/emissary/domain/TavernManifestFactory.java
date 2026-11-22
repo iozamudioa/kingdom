@@ -30,7 +30,6 @@ public class TavernManifestFactory {
         this.version = Optional.ofNullable(pkg.getImplementationVersion()).orElse("dev");
 
 
-        log.info("properties = " + properties);
     }
 
     public synchronized void initialize(int actualPort) {
