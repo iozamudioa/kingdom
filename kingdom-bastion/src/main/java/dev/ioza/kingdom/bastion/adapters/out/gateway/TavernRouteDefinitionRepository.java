@@ -58,10 +58,11 @@ public class TavernRouteDefinitionRepository implements RouteDefinitionRepositor
         definition.setId(tavern.instanceId() + "-domain");
         definition.setUri(tavern.target());
 
-        definition.setPredicates(List.of(predicate(HOST, domain(tavern)), predicate(PATH, "/**")));
+        definition.setPredicates(List.of(predicate(HOST, domain(tavern)), predicate(PATH, path(tavern))));
+        definition.setOrder(-path(tavern).length());
 
         log.info("Registered DOMAIN route '{}' [{} {}] -> {}", definition.getId(), domain(tavern),
-                "/**", definition.getUri());
+                path(tavern), definition.getUri());
 
         return definition;
     }
