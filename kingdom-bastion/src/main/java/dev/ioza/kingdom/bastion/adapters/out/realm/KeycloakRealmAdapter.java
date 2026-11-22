@@ -91,10 +91,10 @@ public class KeycloakRealmAdapter implements RealmPort {
 
         @Override
         public Mono<Knight> authenticateKnight(String username, String password) {
-                var client = properties.knightSeal();
+                var client = properties.herald();
                 if (client == null || client.clientId() == null || client.clientId().isBlank()
                         || client.clientSecret() == null || client.clientSecret().isBlank()) {
-                        return Mono.error(new RealmUnavailableException("Knight seal client is not configured"));
+                        return Mono.error(new RealmUnavailableException("Herald client is not configured"));
                 }
                 MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
                 form.add("grant_type", "password");
