@@ -2,7 +2,6 @@ package dev.ioza.kingdom.bastion.configuration;
 
 import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,11 +24,6 @@ import dev.ioza.kingdom.bastion.adapters.out.sentinel.JwtSentinelProperties;
 @Configuration
 @EnableConfigurationProperties(TrustedChannelProperties.class)
 public class SecurityConfiguration {
-
-        @Bean
-        CommandLineRunner test(TrustedChannelProperties p) {
-                return args -> System.out.println(">>>> " + p.trustedNetworks());
-        }
 
         @Bean
         SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
@@ -69,7 +63,7 @@ public class SecurityConfiguration {
         MapReactiveUserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
 
                 var tavernUser = User.builder().username("tavern")
-                                .password(passwordEncoder.encode("kingdom")).roles("TAVERN")
+                                .password(passwordEncoder.encode(System.getenv().getOrDefault("KINGDOM_TAVERN_PASSWORD", "kingdom"))).roles("TAVERN")
                                 .build();
 
                 return new MapReactiveUserDetailsService(tavernUser);
