@@ -4,8 +4,15 @@ server:
 spring:
   application:
     name: bastion
+  data:
+    mongodb:
+      uri: ${KINGDOM_MONGODB_URI:mongodb://localhost:27017/kingdom_db}
 
 kingdom:
+  postern:
+    trusted-networks: []
+    trusted-ips: []
+    trusted-proxies: []
   sentinel:
     jwt:
       public-key: file:/app/keys/bastion-public.pem

@@ -38,12 +38,12 @@ public class SecurityConfiguration {
 
                 return http.csrf(csrf -> csrf.disable()).authorizeExchange(authorize -> authorize
                                 .pathMatchers("/seal", "/royal-archives", "/audience",
-                                                "/audience/callback", "/test", "/", "/**",
+                                                "/audience/callback", "/test", "/",
                                                 "/audience/backchannel-logout")
                                 .permitAll()
                                 .pathMatchers("/internal/kingdom/taverns",
                                                 "/internal/kingdom/health")
-                                .hasRole("TAVERN").anyExchange().authenticated())
+                                .hasRole("TAVERN").anyExchange().permitAll())
                                 .httpBasic(Customizer.withDefaults())
                                 .oauth2ResourceServer(resource -> resource
                                                 .jwt(jwt -> jwt.jwtDecoder(bastionJwtDecoder)))
