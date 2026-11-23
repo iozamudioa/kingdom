@@ -238,13 +238,24 @@ public class RoyalGuardFilter implements WebFilter {
 
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
 
-        if (requiresInteractiveAuthentication(exchange)) {
-            return redirectToAudience(exchange);
+        String host = exchange.getRequest().getHeaders().getFirst(HttpHeaders.HOST);
+        String path = exchange.getRequest().getPath().value();
+        boolean bankApi = "bank-api.ioza.dev"
+                .equalsIgnoreCase(normalizeHost(host == null ? "" : host))
+                && path.startsWith("/api/v1/");
+
+        // API requests must never redirect to an HTML/OIDC login.
+        // Fetch follows 302 cross-origin, masking the 401 as a CORS/network error.
+        if (bankApi || !requiresInteractiveAuthentication(exchange)) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            exchange.getResponse().getHeaders().setCacheControl("no-store, no-cache, max-age=0");
+            if (bankApi) {
+                exchange.getResponse().addCookie(kingdomPassportPort.destroy());
+            }
+            return exchange.getResponse().setComplete();
         }
 
-        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-
-        return exchange.getResponse().setComplete();
+        return redirectToAudience(exchange);
     }
 
     private Mono<Void> redirectToAudience(ServerWebExchange exchange) {
