@@ -1,6 +1,7 @@
 package dev.ioza.kingdom.bastion.configuration;
 
 import org.springframework.context.annotation.Bean;
+import dev.ioza.kingdom.bastion.adapters.out.mongo.repositories.TavernDefinitionMongoRepository;
 import org.springframework.context.annotation.Configuration;
 import dev.ioza.kingdom.bastion.adapters.out.registry.InMemoryTavernRegistry;
 import dev.ioza.kingdom.bastion.adapters.out.gateway.SpringGatewayRoutesAdapter;
@@ -32,7 +33,8 @@ public class RegistryConfiguration {
 
     @Bean
     RegisterTavernService registerTavernUseCase(TavernRegistryPort registry,
-            TavernPersistencePort persistence, GatewayRoutesPort gatewayRoutesPort) {
-        return new RegisterTavernService(registry, persistence, gatewayRoutesPort);
+            TavernPersistencePort persistence, GatewayRoutesPort gatewayRoutesPort,
+            TavernDefinitionMongoRepository definitions) {
+        return new RegisterTavernService(registry, persistence, gatewayRoutesPort, definitions);
     }
 }
