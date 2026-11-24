@@ -12,7 +12,7 @@ class InMemoryTavernRegistryTest {
     private TavernManifest tavern(String name, String host, String context) {
         return new TavernManifest(name, name + "-1", URI.create("http://" + name + ":8080"),
                 "/health", "1", null, List.of(),
-                List.of(TavernRoutePredicate.domain(host), TavernRoutePredicate.path(context + "/**")),
+                List.of(TavernRoutePredicate.domain(host), TavernRoutePredicate.path("/**")),
                 List.of());
     }
 
