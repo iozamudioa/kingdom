@@ -8,24 +8,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import dev.ioza.kingdom.bastion.application.registry.RegisterTavernService;
 import dev.ioza.kingdom.contracts.TavernManifest;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RestController
-@Slf4j
 @RequestMapping("/internal/kingdom/taverns")
+@RequiredArgsConstructor
 public class RegisterTavernController {
-
-    private final RegisterTavernService registerTavernService;
-
-    public RegisterTavernController(RegisterTavernService registerTavernService) {
-        this.registerTavernService = registerTavernService;
-    }
+    private final RegisterTavernService service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestBody TavernManifest manifest) {
-        log.info("registering {}", manifest.toString());
-        registerTavernService.register(manifest);
+    public Mono<Void> register(@RequestBody TavernManifest manifest) {
+        return service.register(manifest);
     }
-
 }

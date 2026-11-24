@@ -35,7 +35,12 @@ public class TavernHeartbeat {
     @PostConstruct
     public void start() {
 
-        scheduler.scheduleWithFixedDelay(this::heartbeat, 5, 30, TimeUnit.SECONDS);
+        long interval = environment.getProperty("kingdom.tavern.emissary.registration.interval-seconds", Long.class, 3600L);
+        long initialDelay = environment.getProperty("kingdom.tavern.emissary.registration.initial-delay-seconds", Long.class, 5L);
+        if (interval <= 0 || initialDelay < 0) {
+            throw new IllegalArgumentException("Invalid tavern registration interval");
+        }
+        scheduler.scheduleWithFixedDelay(this::heartbeat, initialDelay, interval, TimeUnit.SECONDS);
 
     }
 

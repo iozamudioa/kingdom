@@ -6,6 +6,7 @@ import dev.ioza.kingdom.bastion.adapters.out.registry.InMemoryTavernRegistry;
 import dev.ioza.kingdom.bastion.adapters.out.gateway.SpringGatewayRoutesAdapter;
 import dev.ioza.kingdom.bastion.adapters.out.gateway.TavernRouteDefinitionRepository;
 import dev.ioza.kingdom.bastion.domain.ports.out.GatewayRoutesPort;
+import dev.ioza.kingdom.bastion.domain.ports.out.TavernPersistencePort;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.cloud.gateway.route.RouteDefinitionRepository;
 import dev.ioza.kingdom.bastion.application.registry.RegisterTavernService;
@@ -31,8 +32,7 @@ public class RegistryConfiguration {
 
     @Bean
     RegisterTavernService registerTavernUseCase(TavernRegistryPort registry,
-            GatewayRoutesPort gatewayRoutesPort) {
-        return new RegisterTavernService(registry, gatewayRoutesPort);
+            TavernPersistencePort persistence, GatewayRoutesPort gatewayRoutesPort) {
+        return new RegisterTavernService(registry, persistence, gatewayRoutesPort);
     }
-
 }
