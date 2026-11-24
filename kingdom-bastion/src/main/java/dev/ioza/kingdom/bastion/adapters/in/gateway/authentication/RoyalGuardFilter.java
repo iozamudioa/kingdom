@@ -19,6 +19,7 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.pattern.PathPatternParser;
 import dev.ioza.kingdom.bastion.adapters.in.gateway.TavernAuthenticator;
 import dev.ioza.kingdom.bastion.adapters.out.registry.TavernResolution;
+import dev.ioza.kingdom.bastion.adapters.out.registry.TavernPathRules;
 import dev.ioza.kingdom.bastion.adapters.out.sentinel.JwtSentinelProperties;
 import dev.ioza.kingdom.bastion.domain.ports.out.KingdomPassportPort;
 import dev.ioza.kingdom.bastion.domain.ports.out.TavernRegistryPort;
@@ -136,15 +137,8 @@ public class RoyalGuardFilter implements WebFilter {
     }
 
     private String normalizePath(String path, TavernManifest tavern) {
-
-        String context = tavern.routePredicates().stream().filter(p -> "Path".equals(p.name()))
-                .findFirst().map(p -> p.value().replace("/**", "")).orElse("");
-
-        if (!context.isBlank() && path.startsWith(context)) {
-            return path.substring(context.length());
-        }
-
-        return path;
+        return TavernPathRules.domain(tavern).equalsIgnoreCase("bastion.ioza.dev")
+                ? path : TavernPathRules.removeContext(path, tavern);
     }
 
 
@@ -178,8 +172,7 @@ public class RoyalGuardFilter implements WebFilter {
     }
 
     private String contextRoot(TavernManifest tavern) {
-        return tavern.routePredicates().stream().filter(p -> "Path".equals(p.name())).findFirst()
-                .map(p -> p.value().replace("/**", "")).orElse("/");
+        return TavernPathRules.context(tavern);
     }
 
     private String domain(TavernManifest tavern) {

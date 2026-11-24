@@ -4,112 +4,57 @@ import java.util.List;
 import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionRepository;
+import dev.ioza.kingdom.bastion.adapters.out.registry.TavernPathRules;
 import dev.ioza.kingdom.bastion.domain.ports.out.TavernRegistryPort;
 import dev.ioza.kingdom.contracts.TavernManifest;
-import dev.ioza.kingdom.contracts.TavernRoutePredicate;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
 public class TavernRouteDefinitionRepository implements RouteDefinitionRepository {
+    private final TavernRegistryPort registry;
 
-    private static final String HOST = "Host";
-    private static final String PATH = "Path";
-
-    private final TavernRegistryPort tavernRegistryPort;
-
-    public TavernRouteDefinitionRepository(TavernRegistryPort tavernRegistryPort) {
-        this.tavernRegistryPort = tavernRegistryPort;
+    public TavernRouteDefinitionRepository(TavernRegistryPort registry) {
+        this.registry = registry;
     }
 
     @Override
     public Flux<RouteDefinition> getRouteDefinitions() {
-
-        return Flux.fromIterable(tavernRegistryPort.findAll())
-                .doOnNext(t -> log.info("Building routes for {}", t.tavernName()))
-                .flatMapIterable(this::createRouteDefinitions)
-                .doOnNext(r -> log.info("Route: {} {}", r.getId(), r.getPredicates()));
-
+        return Flux.fromIterable(registry.findAll()).flatMapIterable(this::routes);
     }
 
     @Override
     public Mono<Void> save(Mono<RouteDefinition> routeDefinition) {
-        return Mono.error(new UnsupportedOperationException(
-                "Gateway routes are managed by the Tavern Registry"));
+        return Mono.error(new UnsupportedOperationException("Gateway routes are managed by the Tavern Registry"));
     }
 
     @Override
     public Mono<Void> delete(Mono<String> routeId) {
-        return Mono.error(new UnsupportedOperationException(
-                "Gateway routes are managed by the Tavern Registry"));
+        return Mono.error(new UnsupportedOperationException("Gateway routes are managed by the Tavern Registry"));
     }
 
-    private Iterable<RouteDefinition> createRouteDefinitions(TavernManifest tavern) {
-
-        return List.of(createDomainRoute(tavern), createContextRoute(tavern));
-
+    private Iterable<RouteDefinition> routes(TavernManifest tavern) {
+        return List.of(route(tavern, false), route(tavern, true));
     }
 
-    private RouteDefinition createDomainRoute(TavernManifest tavern) {
-
+    private RouteDefinition route(TavernManifest tavern, boolean context) {
+        String host = context ? "bastion.ioza.dev" : TavernPathRules.domain(tavern);
+        String path = context ? TavernPathRules.contextPath(tavern) : TavernPathRules.domainPath(tavern);
         RouteDefinition definition = new RouteDefinition();
-
-        definition.setId(tavern.instanceId() + "-domain");
+        definition.setId(tavern.instanceId() + (context ? "-context" : "-domain"));
         definition.setUri(tavern.target());
-
-        definition.setPredicates(List.of(predicate(HOST, domain(tavern)), predicate(PATH, path(tavern))));
-        definition.setOrder(-path(tavern).length());
-
-        log.info("Registered DOMAIN route '{}' [{} {}] -> {}", definition.getId(), domain(tavern),
-                path(tavern), definition.getUri());
-
-        return definition;
-    }
-
-    private RouteDefinition createContextRoute(TavernManifest tavern) {
-
-        RouteDefinition definition = new RouteDefinition();
-
-        definition.setId(tavern.instanceId() + "-context");
-        definition.setUri(tavern.target());
-
-        definition.setPredicates(
-                List.of(predicate(HOST, "bastion.ioza.dev"), predicate(PATH, path(tavern))));
-
-
-        log.info("Registered CONTEXT route '{}' [{} {}] -> {}", definition.getId(),
-                "bastion.ioza.dev", path(tavern), definition.getUri());
-
+        definition.setPredicates(List.of(predicate("Host", host), predicate("Path", path)));
+        definition.setOrder(-path.length());
+        log.info("Registered {} route '{}' [{} {}] -> {}",
+                context ? "CONTEXT" : "DOMAIN", definition.getId(), host, path, definition.getUri());
         return definition;
     }
 
     private PredicateDefinition predicate(String name, String value) {
-
         PredicateDefinition definition = new PredicateDefinition();
-
         definition.setName(name);
         definition.addArg("pattern", value);
-
         return definition;
     }
-
-    private String domain(TavernManifest tavern) {
-
-        return tavern.routePredicates().stream()
-                .filter(predicate -> HOST.equalsIgnoreCase(predicate.name())).findFirst()
-                .map(TavernRoutePredicate::value).orElseThrow();
-
-    }
-
-    private String path(TavernManifest tavern) {
-
-        return tavern.routePredicates().stream()
-                .filter(predicate -> PATH.equalsIgnoreCase(predicate.name())).findFirst()
-                .map(TavernRoutePredicate::value).orElseThrow();
-
-    }
-
-
-
 }
