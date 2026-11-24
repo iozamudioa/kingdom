@@ -27,12 +27,21 @@ public record TavernEmissaryProperties(
 
         String domain,
 
-        String path) {
+        String path,
+
+        String tavernId) {
 
     public TavernEmissaryProperties {
         healthPath = defaultValue(healthPath, "/internal/kingdom/health");
         capabilities = capabilities == null ? List.of() : List.copyOf(capabilities);
         publicPaths = publicPaths == null ? List.of() : List.copyOf(publicPaths);
+    }
+
+    public TavernEmissaryProperties(boolean enabled, String bastionUrl, String username,
+            String password, String tavernName, URI target, String healthPath,
+            List<String> capabilities, List<String> publicPaths, String domain, String path) {
+        this(enabled, bastionUrl, username, password, tavernName, target, healthPath,
+                capabilities, publicPaths, domain, path, tavernName);
     }
 
     private static String defaultValue(String value, String defaultValue) {

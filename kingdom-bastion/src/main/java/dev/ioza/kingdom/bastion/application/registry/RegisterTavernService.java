@@ -14,6 +14,7 @@ public class RegisterTavernService {
     private final TavernRegistryPort registry;
     private final TavernPersistencePort persistence;
     private final GatewayRoutesPort routes;
+    private final TavernRegistrationPolicy policy = new TavernRegistrationPolicy();
 
     public RegisterTavernService(TavernRegistryPort registry,
             TavernPersistencePort persistence, GatewayRoutesPort routes) {
@@ -23,12 +24,10 @@ public class RegisterTavernService {
     }
 
     public Mono<Void> register(TavernManifest tavern) {
-        if (tavern == null || tavern.instanceId() == null || tavern.instanceId().isBlank()
-                || tavern.target() == null || tavern.routePredicates() == null
-                || tavern.routePredicates().isEmpty()) {
-            return Mono.error(new IllegalArgumentException("Invalid tavern manifest"));
-        }
-        return persistence.save(tavern).doOnNext(saved -> {
+        return persistence.findAll().collectList().flatMap(existing -> {
+            policy.validate(tavern, existing);
+            return persistence.save(tavern);
+        }).doOnNext(saved -> {
             boolean changed = !Objects.equals(registry.find(saved.instanceId()).orElse(null), saved);
             registry.save(saved);
             if (changed) routes.refresh();

@@ -54,7 +54,9 @@ public class TavernManifestFactory {
 
         return new TavernManifest(application, instanceId, properties.target(),
                 properties.healthPath(), version, startedAt, properties.capabilities(), predicates,
-                properties.publicPaths());
+                properties.publicPaths(),
+                properties.tavernId() == null || properties.tavernId().isBlank()
+                        ? properties.tavernName() : properties.tavernId());
     }
 
     private String createInstanceId() {
