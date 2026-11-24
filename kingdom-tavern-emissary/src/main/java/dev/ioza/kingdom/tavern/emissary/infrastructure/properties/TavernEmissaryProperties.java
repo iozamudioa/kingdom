@@ -3,6 +3,7 @@ package dev.ioza.kingdom.tavern.emissary.infrastructure.properties;
 import java.net.URI;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
 @ConfigurationProperties(prefix = "kingdom.tavern.emissary")
 public record TavernEmissaryProperties(
@@ -33,6 +34,7 @@ public record TavernEmissaryProperties(
 
         String context) {
 
+    @ConstructorBinding
     public TavernEmissaryProperties {
         healthPath = defaultValue(healthPath, "/internal/kingdom/health");
         capabilities = capabilities == null ? List.of() : List.copyOf(capabilities);
