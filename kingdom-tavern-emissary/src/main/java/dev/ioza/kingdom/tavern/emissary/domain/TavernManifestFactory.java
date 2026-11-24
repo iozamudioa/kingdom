@@ -2,6 +2,7 @@ package dev.ioza.kingdom.tavern.emissary.domain;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.Optional;
 import java.util.logging.Logger;
 import org.springframework.core.env.Environment;
@@ -64,6 +65,8 @@ public class TavernManifestFactory {
     }
 
     private String createInstanceId() {
-        return application + "-" + actualPort + "-" + startedAt.toEpochMilli();
+        String tavernId = properties.tavernId() == null || properties.tavernId().isBlank()
+                ? properties.tavernName() : properties.tavernId();
+        return tavernId + "-" + UUID.randomUUID();
     }
 }

@@ -213,6 +213,10 @@ public class RoyalGuardFilter implements WebFilter {
 
         TavernAuthenticator authenticator = iterator.next();
 
+        if (!tavern.allowedAccess().contains(authenticator.supports())) {
+            return authenticate(tavern, iterator, exchange, chain);
+        }
+
         if (authenticator == null) {
             log.warn("No authenticator found. Skipping to next.");
             return authenticate(tavern, iterator, exchange, chain);
