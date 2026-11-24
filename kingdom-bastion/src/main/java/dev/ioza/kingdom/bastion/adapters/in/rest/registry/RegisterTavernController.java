@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import dev.ioza.kingdom.bastion.application.registry.RegisterTavernService;
-import dev.ioza.kingdom.contracts.TavernManifest;
+import dev.ioza.kingdom.bastion.domain.model.registry.TavernInstanceRegistration;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -28,7 +28,7 @@ public class RegisterTavernController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> register(@RequestBody TavernManifest manifest) {
+    public Mono<Void> register(@RequestBody TavernInstanceRegistration manifest) {
         return service.register(manifest);
     }
 }

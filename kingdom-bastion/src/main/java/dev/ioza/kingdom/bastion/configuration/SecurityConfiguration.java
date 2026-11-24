@@ -37,7 +37,10 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .pathMatchers("/internal/kingdom/taverns",
                                                 "/internal/kingdom/health")
-                                .hasRole("TAVERN").anyExchange().permitAll())
+                                .hasRole("TAVERN")
+                                .pathMatchers("/internal/kingdom/tavern-definitions/**",
+                                        "/internal/kingdom/tavern-definitions")
+                                .hasRole("REGISTRY_ADMIN").anyExchange().permitAll())
                                 .httpBasic(Customizer.withDefaults())
                                 .oauth2ResourceServer(resource -> resource
                                                 .jwt(jwt -> jwt.jwtDecoder(bastionJwtDecoder)))
@@ -66,7 +69,14 @@ public class SecurityConfiguration {
                                 .password(passwordEncoder.encode(System.getenv().getOrDefault("KINGDOM_TAVERN_PASSWORD", "kingdom"))).roles("TAVERN")
                                 .build();
 
-                return new MapReactiveUserDetailsService(tavernUser);
+                String registryPassword = System.getenv("KINGDOM_REGISTRY_ADMIN_PASSWORD");
+                if (registryPassword == null || registryPassword.isBlank()) {
+                        return new MapReactiveUserDetailsService(tavernUser);
+                }
+                var administrator = User.builder().username("registry-admin")
+                                .password(passwordEncoder.encode(registryPassword))
+                                .roles("REGISTRY_ADMIN").build();
+                return new MapReactiveUserDetailsService(tavernUser, administrator);
         }
 
         @Bean

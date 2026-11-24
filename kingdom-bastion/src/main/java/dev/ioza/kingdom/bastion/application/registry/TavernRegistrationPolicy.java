@@ -41,7 +41,8 @@ public final class TavernRegistrationPolicy {
                         || !domainPath.equals(TavernPathRules.domainPath(current))
                         || !context.equals(TavernPathRules.context(current))
                         || !Objects.equals(current.capabilities(), candidate.capabilities())
-                        || !Objects.equals(current.publicPaths(), candidate.publicPaths())) {
+                        || !Objects.equals(current.publicPaths(), candidate.publicPaths())
+                        || !Objects.equals(current.allowedAccess(), candidate.allowedAccess())) {
                     throw new TavernRegistrationConflictException(
                             "Instances of the same tavernId must share routing and security policy");
                 }
