@@ -29,7 +29,9 @@ public record TavernEmissaryProperties(
 
         String path,
 
-        String tavernId) {
+        String tavernId,
+
+        String context) {
 
     public TavernEmissaryProperties {
         healthPath = defaultValue(healthPath, "/internal/kingdom/health");
@@ -41,7 +43,15 @@ public record TavernEmissaryProperties(
             String password, String tavernName, URI target, String healthPath,
             List<String> capabilities, List<String> publicPaths, String domain, String path) {
         this(enabled, bastionUrl, username, password, tavernName, target, healthPath,
-                capabilities, publicPaths, domain, path, tavernName);
+                capabilities, publicPaths, domain, path, tavernName, null);
+    }
+
+    public TavernEmissaryProperties(boolean enabled, String bastionUrl, String username,
+            String password, String tavernName, URI target, String healthPath,
+            List<String> capabilities, List<String> publicPaths, String domain, String path,
+            String tavernId) {
+        this(enabled, bastionUrl, username, password, tavernName, target, healthPath,
+                capabilities, publicPaths, domain, path, tavernId, null);
     }
 
     private static String defaultValue(String value, String defaultValue) {
