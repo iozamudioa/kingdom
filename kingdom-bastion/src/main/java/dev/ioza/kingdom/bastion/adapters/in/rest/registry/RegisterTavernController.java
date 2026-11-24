@@ -1,6 +1,9 @@
 package dev.ioza.kingdom.bastion.adapters.in.rest.registry;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
+import dev.ioza.kingdom.bastion.application.registry.TavernRegistrationConflictException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +19,12 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class RegisterTavernController {
     private final RegisterTavernService service;
+
+    @ExceptionHandler(TavernRegistrationConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Mono<String> conflict(TavernRegistrationConflictException ex) {
+        return Mono.just(ex.getMessage());
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

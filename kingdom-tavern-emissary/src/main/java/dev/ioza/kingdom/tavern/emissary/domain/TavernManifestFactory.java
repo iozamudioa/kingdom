@@ -49,12 +49,18 @@ public class TavernManifestFactory {
     public TavernManifest create() {
 
         List<TavernRoutePredicate> predicates =
-                List.of(TavernRoutePredicate.domain(properties.domain()),
-                        TavernRoutePredicate.path(properties.path()));
+                properties.context() == null || properties.context().isBlank()
+                        ? List.of(TavernRoutePredicate.domain(properties.domain()),
+                                TavernRoutePredicate.path(properties.path()))
+                        : List.of(TavernRoutePredicate.domain(properties.domain()),
+                                TavernRoutePredicate.path(properties.path()),
+                                new TavernRoutePredicate("Context", properties.context()));
 
         return new TavernManifest(application, instanceId, properties.target(),
                 properties.healthPath(), version, startedAt, properties.capabilities(), predicates,
-                properties.publicPaths());
+                properties.publicPaths(),
+                properties.tavernId() == null || properties.tavernId().isBlank()
+                        ? properties.tavernName() : properties.tavernId());
     }
 
     private String createInstanceId() {

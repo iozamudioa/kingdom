@@ -1,6 +1,9 @@
 package dev.ioza.kingdom.bastion.adapters.out.gateway;
 
 import java.util.List;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionRepository;
@@ -21,7 +24,12 @@ public class TavernRouteDefinitionRepository implements RouteDefinitionRepositor
 
     @Override
     public Flux<RouteDefinition> getRouteDefinitions() {
-        return Flux.fromIterable(registry.findAll()).flatMapIterable(this::routes);
+        // One pair of Gateway routes per logical tavern, regardless of replicas.
+        Map<String, TavernManifest> representatives = new TreeMap<>();
+        registry.findAll().stream()
+                .sorted(Comparator.comparing(TavernManifest::instanceId))
+                .forEach(t -> representatives.putIfAbsent(t.tavernId(), t));
+        return Flux.fromIterable(representatives.values()).flatMapIterable(this::routes);
     }
 
     @Override
@@ -42,7 +50,7 @@ public class TavernRouteDefinitionRepository implements RouteDefinitionRepositor
         String host = context ? "bastion.ioza.dev" : TavernPathRules.domain(tavern);
         String path = context ? TavernPathRules.contextPath(tavern) : TavernPathRules.domainPath(tavern);
         RouteDefinition definition = new RouteDefinition();
-        definition.setId(tavern.instanceId() + (context ? "-context" : "-domain"));
+        definition.setId(tavern.tavernId() + (context ? "-context" : "-domain"));
         definition.setUri(tavern.target());
         definition.setPredicates(List.of(predicate("Host", host), predicate("Path", path)));
         definition.setOrder(-path.length());
