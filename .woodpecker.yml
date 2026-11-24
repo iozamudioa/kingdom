@@ -58,5 +58,5 @@ steps:
       - docker compose -p bastion logs --tail=30 bastion
 
 when:
-  - event: push
+  - event: [push, manual]
     branch: main
