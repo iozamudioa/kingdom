@@ -19,6 +19,7 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.pattern.PathPatternParser;
 import dev.ioza.kingdom.bastion.adapters.in.gateway.TavernAuthenticator;
 import dev.ioza.kingdom.bastion.adapters.out.registry.TavernResolution;
+import dev.ioza.kingdom.bastion.adapters.out.registry.TavernPathRules;
 import dev.ioza.kingdom.bastion.adapters.out.sentinel.JwtSentinelProperties;
 import dev.ioza.kingdom.bastion.domain.ports.out.KingdomPassportPort;
 import dev.ioza.kingdom.bastion.domain.ports.out.TavernRegistryPort;
@@ -123,7 +124,7 @@ public class RoyalGuardFilter implements WebFilter {
 
     private boolean isPublicPath(ServerWebExchange exchange, TavernManifest tavern) {
 
-        String path = normalizePath(exchange.getRequest().getPath().value(), tavern);
+        String path = normalizePath(exchange, tavern);
 
         log.info("Normalized path: {}", path);
 
@@ -135,16 +136,11 @@ public class RoyalGuardFilter implements WebFilter {
         return result;
     }
 
-    private String normalizePath(String path, TavernManifest tavern) {
-
-        String context = tavern.routePredicates().stream().filter(p -> "Path".equals(p.name()))
-                .findFirst().map(p -> p.value().replace("/**", "")).orElse("");
-
-        if (!context.isBlank() && path.startsWith(context)) {
-            return path.substring(context.length());
-        }
-
-        return path;
+    private String normalizePath(ServerWebExchange exchange, TavernManifest tavern) {
+        String path = exchange.getRequest().getPath().value();
+        String host = exchange.getRequest().getHeaders().getFirst(HttpHeaders.HOST);
+        return "bastion.ioza.dev".equalsIgnoreCase(normalizeHost(host == null ? "" : host))
+                ? TavernPathRules.removeContext(path, tavern) : path;
     }
 
 
@@ -178,8 +174,7 @@ public class RoyalGuardFilter implements WebFilter {
     }
 
     private String contextRoot(TavernManifest tavern) {
-        return tavern.routePredicates().stream().filter(p -> "Path".equals(p.name())).findFirst()
-                .map(p -> p.value().replace("/**", "")).orElse("/");
+        return TavernPathRules.context(tavern);
     }
 
     private String domain(TavernManifest tavern) {
