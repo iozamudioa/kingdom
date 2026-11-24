@@ -124,7 +124,7 @@ public class RoyalGuardFilter implements WebFilter {
 
     private boolean isPublicPath(ServerWebExchange exchange, TavernManifest tavern) {
 
-        String path = normalizePath(exchange.getRequest().getPath().value(), tavern);
+        String path = normalizePath(exchange, tavern);
 
         log.info("Normalized path: {}", path);
 
@@ -136,9 +136,11 @@ public class RoyalGuardFilter implements WebFilter {
         return result;
     }
 
-    private String normalizePath(String path, TavernManifest tavern) {
-        return TavernPathRules.domain(tavern).equalsIgnoreCase("bastion.ioza.dev")
-                ? path : TavernPathRules.removeContext(path, tavern);
+    private String normalizePath(ServerWebExchange exchange, TavernManifest tavern) {
+        String path = exchange.getRequest().getPath().value();
+        String host = exchange.getRequest().getHeaders().getFirst(HttpHeaders.HOST);
+        return "bastion.ioza.dev".equalsIgnoreCase(normalizeHost(host == null ? "" : host))
+                ? TavernPathRules.removeContext(path, tavern) : path;
     }
 
 
